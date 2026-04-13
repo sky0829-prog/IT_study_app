@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ToDo</title>
+</head>
+<body>
+  <h1>ToDoアプリ</h1>
+
+  <input id="taskInput" placeholder="タスク入力">
+  <button onclick="addTodo()">追加</button>
+
+  <ul id="todoList"></ul>
+
+  <script>
+    async function loadTodos() {
+      const res = await fetch("http://127.0.0.1:8000/todos");
+      const data = await res.json();
+
+      const list = document.getElementById("todoList");
+      list.innerHTML = "";
+
+      data.forEach((todo, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `${todo} <button onclick="deleteTodo(${index})">削除</button>`;
+        list.appendChild(li);
+      });
+    }
+
+    async function addTodo() {
+      const input = document.getElementById("taskInput");
+
+      await fetch("http://127.0.0.1:8000/todos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ task: input.value })
+      });
+
+      input.value = "";
+      loadTodos();
+    }
+
+    async function deleteTodo(index) {
+      await fetch(`http://127.0.0.1:8000/todos/${index}`, {
+        method: "DELETE"
+      });
+      loadTodos();
+    }
+
+    loadTodos();
+  </script>
+</body>
+</html>
